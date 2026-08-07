@@ -12,10 +12,10 @@ pipeline {
                 script {
                     if (env.TAG_NAME) {
                         env.IMAGE_TAG = "${env.TAG_NAME}"
-                        env.TARGET_GITOPS_BRANCH = "main"
+                        env.TARGET_GITOPS_FOLDER = "environments/production"
                     } else {
                         env.IMAGE_TAG = "${env.BRANCH_NAME}-${env.GIT_SHORT_SHA}"
-                        env.TARGET_GITOPS_BRANCH = "${env.BRANCH_NAME}"
+                        env.TARGET_GITOPS_FOLDER = "environments/${env.BRANCH_NAME}"
                     }
                     echo "Determined Image Tag: ${env.IMAGE_TAG}"
                 }
@@ -47,7 +47,32 @@ pipeline {
             }
         }
         
-        // Note: The 'Update GitOps Manifests' stage will be added later 
-        // after we create the deepdive-gitops repository!
-    }
+        stage('Update GitOps Manifests') {
+            when {
+                anyOf {
+                    branch 'staging'
+                    buildingTag()
+                }
+            }
+            steps {
+                // Ensure you have a GitHub Personal Access Token saved in Jenkins as a 'Secret text' named 'github-credentials'
+                withCredentials([string(credentialsId: 'github-credentials', variable: 'GITHUB_TOKEN')]) {
+                    sh """
+                        # 1. Clone the GitOps Repository
+                        git clone https://bunnywkwk:\$GITHUB_TOKEN@github.com/bunnywkwk/deepdive-gitops.git
+                        cd deepdive-gitops
+                        
+                        # 2. Update the image tag in the correct environment folder using sed
+                        sed -i "s|image: bunnywkwk/argo-deepdive-api:.*|image: \${env.IMAGE}|g" \${env.TARGET_GITOPS_FOLDER}/api/api-deployment.yaml
+                        
+                        # 3. Commit and Push back to main
+                        git config user.email "jenkins@aeron"
+                        git config user.name "Jenkins Automation"
+                        git add .
+                        git commit -m "chore: automate update api image to \${env.IMAGE_TAG} in \${env.TARGET_GITOPS_FOLDER}" || echo "No changes to commit"
+                        git push origin main
+                    """
+                }
+            }
+        }
 }
