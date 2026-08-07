@@ -65,11 +65,11 @@ pipeline {
                 }
             }
             steps {
-                // Ensure you have a GitHub Personal Access Token saved in Jenkins as a 'Secret text' named 'github-credentials'
-                withCredentials([string(credentialsId: 'github-credentials', variable: 'GITHUB_TOKEN')]) {
+                // Ensure you have a GitHub Personal Access Token saved in Jenkins as a 'Username with password' named 'github-credentials'
+                withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                     sh """
                         # 1. Clone the GitOps Repository
-                        git clone https://bunnywkwk:\$GITHUB_TOKEN@github.com/bunnywkwk/deepdive-gitops.git
+                        git clone https://\${GITHUB_USER}:\${GITHUB_TOKEN}@github.com/bunnywkwk/deepdive-gitops.git
                         cd deepdive-gitops
                         
                         # 2. Update the image tag in the correct environment folder using sed
