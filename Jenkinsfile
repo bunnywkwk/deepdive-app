@@ -25,7 +25,7 @@ pipeline {
         stage('Build & Push Docker Image') {
             when {
                 anyOf {
-                    branch 'main'
+                    branch 'staging'
                     buildingTag()
                 }
             }
