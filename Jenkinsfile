@@ -22,6 +22,16 @@ pipeline {
             }
         }
 
+        stage('Lint & Test Code') {
+            steps {
+                sh '''
+                    echo "Running Lint & Syntax Tests..."
+                    # A built-in Python tool that checks for basic syntax errors!
+                    python3 -m py_compile main.py
+                '''
+            }
+        }
+
         stage('Build & Push Docker Image') {
             when {
                 anyOf {
@@ -75,4 +85,5 @@ pipeline {
                 }
             }
         }
+    }
 }
