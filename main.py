@@ -26,7 +26,7 @@ class MessageDB(Base):
 Base.metadata.create_all(bind=engine)
 
 # FastAPI App
-app = FastAPI(title="Argo Deep Dive API")
+app = FastAPI(title="Argo Deep Dive API Test new Changes")
 
 # Dependency to get DB session
 def get_db():
