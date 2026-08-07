@@ -73,13 +73,13 @@ pipeline {
                         cd deepdive-gitops
                         
                         # 2. Update the image tag in the correct environment folder using sed
-                        sed -i "s|image: bunnywkwk/argo-deepdive-api:.*|image: \${env.IMAGE}|g" \${env.TARGET_GITOPS_FOLDER}/api/api-deployment.yaml
+                        sed -i "s|image: bunnywkwk/argo-deepdive-api:.*|image: ${env.IMAGE}|g" ${env.TARGET_GITOPS_FOLDER}/api/api-deployment.yaml
                         
                         # 3. Commit and Push back to main
                         git config user.email "jenkins@aeron"
                         git config user.name "Jenkins Automation"
                         git add .
-                        git commit -m "chore: automate update api image to \${env.IMAGE_TAG} in \${env.TARGET_GITOPS_FOLDER}" || echo "No changes to commit"
+                        git commit -m "chore: automate update api image to ${env.IMAGE_TAG} in ${env.TARGET_GITOPS_FOLDER}" || echo "No changes to commit"
                         git push origin main
                     """
                 }
